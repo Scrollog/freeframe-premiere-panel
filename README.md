@@ -8,6 +8,10 @@ a new version.
 Built with [Bolt CEP](https://github.com/hyperbrew/bolt-cep) (Vite + React +
 TypeScript, with end-to-end typed `evalTS` calls into ExtendScript).
 
+The panel talks to a [FreeFrame](https://github.com/Scrollog/freeframe) server.
+It used to live in that repository as `apps/premiere`; it moved here with its
+commit history.
+
 ## What it does
 
 | Feature | Where |
@@ -28,13 +32,21 @@ existing ones are left in place, and markers you made by hand are never touched.
 ## Requirements
 
 - Premiere Pro 14.0 (2020) or newer
-- Node 18+ for the build
-- A reachable FreeFrame API (this repo's `apps/api`)
+- Node 20 for the build (the version in [`.nvmrc`](.nvmrc), which CI uses)
+- A reachable [FreeFrame](https://github.com/Scrollog/freeframe) API
 
 ## Develop
 
 ```bash
-npm install
+npm ci
+```
+
+Before you push, run what CI runs on every push and pull request:
+
+```bash
+npm run lint
+npm test
+npm run build
 ```
 
 ```bash

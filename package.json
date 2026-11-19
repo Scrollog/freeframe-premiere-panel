@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "fabric": "^7.4.0",
+    "hls.js": "^1.7.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
