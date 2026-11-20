@@ -2,11 +2,17 @@
 import { useCallback, useEffect, useMemo, useState, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { useApp } from "../state";
 import type { Asset, FolderNode, Project } from "../../lib/freeframe/types";
+import {
+  durationOf,
+  filterAndSortAssets,
+  filterAndSortFolders,
+  type BrowseSortKey,
+} from "../../lib/freeframe/browse-sort";
 import { copyText } from "../../lib/freeframe/clipboard";
 import type { UploadLocation } from "./LocationPicker";
 import { formatDuration, shortDate } from "../../lib/freeframe/format";
 import { Dropdown, MenuAction } from "./Dropdown";
-import { AppearanceMenu, SortedByMenu, cardMinWidth } from "./BrowseControls";
+import { AppearanceMenu, SortedByMenu, cardGridStyle } from "./BrowseControls";
 import { openLinkInBrowser } from "../../lib/utils/bolt";
 import { useProjectEvents } from "../../lib/freeframe/events";
 import {
@@ -48,7 +54,7 @@ import {
 const COUNT_LIMIT = 24;
 const COUNT_CONCURRENCY = 4;
 
-type SortKey = "name" | "newest" | "oldest" | "duration";
+type SortKey = BrowseSortKey;
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "name", label: "Name" },
@@ -82,9 +88,6 @@ const findNode = (nodes: FolderNode[], id: string): FolderNode | null => {
   return null;
 };
 
-const durationOf = (asset: Asset) =>
-  asset.latest_version?.files?.[0]?.duration_seconds ?? 0;
-
 export const AssetGrid = ({
   project,
   onBack,
@@ -104,6 +107,8 @@ export const AssetGrid = ({
 }) => {
   const { api, settings, host, updateSettings, refreshHost } = useApp();
   const [tree, setTree] = useState<FolderNode[]>([]);
+  /** Folder id → created_at, for the date sorts; the tree has no dates. */
+  const [folderDates, setFolderDates] = useState<Record<string, string>>({});
   const [crumbs, setCrumbs] = useState<Crumb[]>([{ id: null, name: "Assets" }]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [query, setQuery] = useState("");
@@ -148,12 +153,17 @@ export const AssetGrid = ({
     setLoading(true);
     setError("");
     try {
-      const [folders, items] = await Promise.all([
+      const [folders, items, folderList] = await Promise.all([
         api.folderTree(project.id, refresh),
         api.assets(project.id, folderId ?? "root", refresh),
+        // Dates only order folders: without them they fall back to name order.
+        api.folderList(project.id, refresh).catch(() => []),
       ]);
       setTree(folders);
       setAssets(items);
+      setFolderDates(
+        Object.fromEntries(folderList.map((folder) => [folder.id, folder.created_at]))
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -245,24 +255,12 @@ export const AssetGrid = ({
     return findNode(tree, folderId)?.children ?? [];
   }, [tree, folderId]);
 
-  const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    const filtered = needle
-      ? assets.filter((asset) => asset.name.toLowerCase().includes(needle))
-      : assets.slice();
-    return filtered.sort((a, b) => {
-      switch (sort) {
-        case "newest":
-          return b.created_at.localeCompare(a.created_at);
-        case "oldest":
-          return a.created_at.localeCompare(b.created_at);
-        case "duration":
-          return durationOf(b) - durationOf(a);
-        default:
-          return a.name.localeCompare(b.name);
-      }
-    });
-  }, [assets, query, sort]);
+  const visibleFolders = useMemo(
+    () => filterAndSortFolders(childFolders, query, sort, folderDates),
+    [childFolders, query, sort, folderDates]
+  );
+
+  const visible = useMemo(() => filterAndSortAssets(assets, query, sort), [assets, query, sort]);
 
   const assetUrl = (asset: Asset) =>
     `${(settings.webUrl || settings.serverUrl).replace(/\/+$/, "")}/projects/${
@@ -582,9 +580,9 @@ export const AssetGrid = ({
       {error && <p className="error">{error}</p>}
       {loading && <p className="muted">Loading…</p>}
 
-      {childFolders.length > 0 && (
+      {visibleFolders.length > 0 && (
         <div className="folder-grid">
-          {childFolders.map((folder) => (
+          {visibleFolders.map((folder) => (
             <button
               key={folder.id}
               className="folder-tile"
@@ -605,11 +603,7 @@ export const AssetGrid = ({
 
       <div
         className="card-grid assets"
-        style={{
-          gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${cardMinWidth(
-            settings.cardSize
-          )}px), 1fr))`,
-        }}
+        style={cardGridStyle(settings)}
       >
         {visible.map((asset) => {
           const duration = durationOf(asset);
@@ -799,7 +793,7 @@ export const AssetGrid = ({
         })}
       </div>
 
-      {!loading && !visible.length && !childFolders.length && (
+      {!loading && !visible.length && !visibleFolders.length && (
         <div className="dropzone">
           <span className="dropzone-icon">
             <IconCloudUpload width={44} height={44} />

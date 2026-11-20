@@ -8,6 +8,7 @@ import type {
   Asset,
   AssetVersion,
   Comment,
+  FolderInfo,
   FolderNode,
   InitiateUploadResponse,
   Me,
@@ -209,6 +210,11 @@ export class FreeFrameApi {
 
   folderTree(projectId: string, refresh = false) {
     return this.cachedBrowse<FolderNode[]>(`/projects/${projectId}/folder-tree`, refresh);
+  }
+
+  /** Every folder of the project as a flat list; unlike the tree it carries dates. */
+  folderList(projectId: string, refresh = false) {
+    return this.cachedBrowse<FolderInfo[]>(`/projects/${projectId}/folders`, refresh);
   }
 
   createFolder(projectId: string, name: string, parentId: string | null = null) {
