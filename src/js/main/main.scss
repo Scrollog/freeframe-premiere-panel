@@ -1150,7 +1150,8 @@ button {
     position: relative;
     display: block;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    // Set on the grid from Appearance → Aspect ratio.
+    aspect-ratio: var(--card-aspect, 1 / 1);
     background: #000;
     background-size: cover;
     background-position: center;
