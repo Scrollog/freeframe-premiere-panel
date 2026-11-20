@@ -7,7 +7,7 @@
     "dev": "vite",
     "watch": "tsc && vite build --watch true",
     "build": "rimraf dist/* && tsc -p \"tsconfig-build.json\" && vite build --watch false",
-    "lint": "eslint src/js/lib/freeframe/review.ts src/js/lib/freeframe/review.test.ts src/js/lib/freeframe/comment-attachments.ts src/js/lib/freeframe/comment-attachments.test.ts src/js/main/hooks src/js/main/components/AssetView.tsx src/js/main/components/comments src/js/main/components/player src/js/main/components/share --max-warnings=0",
+    "lint": "eslint src/js/lib/freeframe/browse-sort.ts src/js/lib/freeframe/browse-sort.test.ts src/js/main/components/BrowseControls.tsx src/js/lib/freeframe/review.ts src/js/lib/freeframe/review.test.ts src/js/lib/freeframe/comment-attachments.ts src/js/lib/freeframe/comment-attachments.test.ts src/js/main/hooks src/js/main/components/AssetView.tsx src/js/main/components/comments src/js/main/components/player src/js/main/components/share --max-warnings=0",
     "test": "vitest run",
     "zxp": "rimraf dist/* && tsc -p \"tsconfig-build.json\" && cross-env ZXP_PACKAGE=true vite build --watch false",
     "zip": "rimraf dist/* && tsc -p \"tsconfig-build.json\" && cross-env ZIP_PACKAGE=true vite build --watch false",

@@ -34,6 +34,16 @@ export interface FolderNode {
   children?: FolderNode[];
 }
 
+/** One entry of the flat folder list (`GET /projects/{id}/folders`). */
+export interface FolderInfo {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  created_at: string;
+  updated_at: string;
+  item_count?: number;
+}
+
 export type AssetType = "video" | "image" | "audio" | "document";
 
 export interface MediaFile {

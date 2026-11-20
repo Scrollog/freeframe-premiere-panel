@@ -5,7 +5,7 @@ import type { Project } from "../../lib/freeframe/types";
 import { copyText } from "../../lib/freeframe/clipboard";
 import { formatBytes, gradientFor, relativeTime } from "../../lib/freeframe/format";
 import { Dropdown, MenuAction } from "./Dropdown";
-import { AppearanceMenu, SortedByMenu, cardMinWidth } from "./BrowseControls";
+import { AppearanceMenu, SortedByMenu, cardGridStyle } from "./BrowseControls";
 import { PromptDialog } from "./PromptDialog";
 import { ConfirmDialog, type ConfirmRequest } from "./ConfirmDialog";
 import { openLinkInBrowser, selectFile } from "../../lib/utils/bolt";
@@ -220,11 +220,7 @@ export const ProjectGrid = ({ onOpen }: { onOpen: (project: Project) => void }) 
 
       <div
         className="card-grid projects"
-        style={{
-          gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${cardMinWidth(
-            settings.cardSize
-          )}px), 1fr))`,
-        }}
+        style={cardGridStyle(settings)}
       >
         {visible.map((project) => (
           <div

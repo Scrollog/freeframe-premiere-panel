@@ -42,6 +42,8 @@ export interface Settings {
   exportRange: number;
   /** Card size chosen under Appearance, in the browse grids. */
   cardSize: "small" | "medium" | "large";
+  /** Thumbnail shape under Appearance: 16:9, 1:1 or 9:16. */
+  cardAspect: "landscape" | "square" | "portrait";
   /** Emoji the picker offers first, most recent leading. */
   recentEmoji: string[];
   /** Comment ids already opened in the panel — the API has no read state. */
@@ -76,6 +78,7 @@ export const defaultSettings: Settings = {
   renderMode: "ame",
   exportRange: 0,
   cardSize: "medium",
+  cardAspect: "square",
   recentEmoji: [],
   readComments: [],
   exportHistory: [],
