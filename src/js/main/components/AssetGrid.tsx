@@ -640,7 +640,7 @@ export const AssetGrid = ({
                   else toggleSelected(asset);
                 }}
               >
-                {isSelected && <IconCheck width={11} height={11} />}
+                <IconCheck width={14} height={14} />
               </span>
               <span className="poster asset-poster">
                 <ScrubThumb
