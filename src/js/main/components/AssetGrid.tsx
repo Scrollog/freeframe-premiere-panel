@@ -501,36 +501,7 @@ export const AssetGrid = ({
       </nav>
 
       <div className="view-bar">
-        {selected.length > 0 ? (
-          <div className="selection-bar">
-            <strong>{selected.length} selected</strong>
-            <span className="spacer" />
-            <button
-              className="chip"
-              onClick={() => setSelected(visible.map((asset) => asset.id))}
-              disabled={selected.length === visible.length}
-            >
-              Select all
-            </button>
-            <button
-              className="chip with-icon"
-              onClick={() => {
-                setMoveError("");
-                setMovingAssets(selectedAssets);
-              }}
-            >
-              <IconFolder width={13} height={13} />
-              Move
-            </button>
-            <button className="chip with-icon danger" onClick={deleteSelected}>
-              <IconTrash width={13} height={13} />
-              Delete
-            </button>
-            <button className="icon-btn" title="Clear selection (Esc)" onClick={() => setSelected([])}>
-              <IconClose width={15} height={15} />
-            </button>
-          </div>
-        ) : searching ? (
+        {searching ? (
           <>
             <div className="field">
               <IconSearch />
@@ -640,7 +611,7 @@ export const AssetGrid = ({
                   else toggleSelected(asset);
                 }}
               >
-                <IconCheck width={14} height={14} />
+                {isSelected && <IconCheck width={12} height={12} />}
               </span>
               <span className="poster asset-poster">
                 <ScrubThumb
@@ -814,6 +785,45 @@ export const AssetGrid = ({
               {host.ok ? `Export ${host.sequenceName}` : "Open a sequence in Premiere"}
             </button>
           )}
+        </div>
+      )}
+
+      {/* Bottom selection bar, the same as the website's asset grid. */}
+      {selected.length > 0 && (
+        <div className="selection-bar">
+          <button
+            className="selection-clear"
+            title="Clear selection (Esc)"
+            onClick={() => setSelected([])}
+          >
+            <IconClose width={16} height={16} />
+          </button>
+          <span className="selection-count">
+            {selected.length} Item{selected.length === 1 ? "" : "s"} selected
+          </span>
+          <span className="spacer" />
+          {selected.length < visible.length && (
+            <button
+              className="selection-action"
+              onClick={() => setSelected(visible.map((asset) => asset.id))}
+            >
+              Select all
+            </button>
+          )}
+          <button className="selection-action" onClick={deleteSelected}>
+            <IconTrash width={16} height={16} />
+            Delete
+          </button>
+          <button
+            className="selection-action"
+            onClick={() => {
+              setMoveError("");
+              setMovingAssets(selectedAssets);
+            }}
+          >
+            <IconFolder width={16} height={16} />
+            Move to
+          </button>
         </div>
       )}
     </div>

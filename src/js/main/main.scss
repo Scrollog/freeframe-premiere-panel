@@ -3145,32 +3145,66 @@ button {
 
 // -- multi-select -------------------------------------------------------------
 
+/* Bottom bar while assets are selected — the website's asset-grid bar:
+   clear, "N Items selected", then quiet icon actions on the right. */
 .selection-bar {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex: 1;
+  gap: 12px;
+  flex: none;
   min-width: 0;
-  padding: 2px 2px 2px 8px;
-  border-radius: $radius-md;
-  background: $accent-muted;
+  padding: 8px 14px;
+  border: 1px solid $border-primary;
+  border-radius: $radius-xl;
+  background: $bg-elevated;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
   animation: fade 0.15s $ease;
+}
 
-  strong {
+.selection-clear {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: $text-tertiary;
+  transition: color 0.12s $ease;
+
+  &:hover {
     color: $text-primary;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .chip.danger {
-    color: $error-hover;
   }
 }
 
+.selection-count {
+  color: $text-primary;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.selection-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-md;
+  color: $text-secondary;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background-color 0.12s $ease, color 0.12s $ease;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+  }
+}
+
+/* The website's card checkbox: a 20px box with 4px corners and a faint
+   border; filled with the accent and a white check once selected. */
 .card-check {
   position: absolute;
-  /* Same box as the website's asset cards: a rounded square with a faint
-     check that turns white on the accent colour once selected. */
   top: 8px;
   left: 8px;
   z-index: 4;
@@ -3178,13 +3212,13 @@ button {
   place-items: center;
   width: 20px;
   height: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: $radius-md;
   background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  color: rgba(255, 255, 255, 0.6);
+  color: #fff;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.12s $ease, background-color 0.12s $ease, color 0.12s $ease;
+  transition: opacity 0.12s $ease, background-color 0.12s $ease, border-color 0.12s $ease;
 }
 
 .card:hover .card-check,
@@ -3199,7 +3233,7 @@ button {
 
   .card-check {
     background: $accent;
-    color: #fff;
+    border-color: $accent;
   }
 }
 
