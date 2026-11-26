@@ -15,6 +15,7 @@ import {
   upsertSegmentLink,
 } from "./host";
 import { uploadFile } from "./upload";
+import { directRenderOutcome } from "./render-result";
 import type { FreeFrameApi } from "./api";
 import { fs, path } from "../cep/node";
 
@@ -276,16 +277,17 @@ export const useExportJobs = (
           outputPath,
           request.range
         );
-        if (!direct.ok) {
+        const outcome = directRenderOutcome(direct, outputPath);
+        if (!outcome.ok) {
           patch(id, {
             phase: "failed",
-            error: `Premiere could not render: ${direct.error}`,
+            error: `Premiere could not render: ${outcome.error}`,
             finishedAt: new Date().toISOString(),
           });
           return;
         }
-        const started = { ...job, outputPath };
-        await uploadRef.current(started, outputPath);
+        const started = { ...job, outputPath: outcome.outputPath };
+        await uploadRef.current(started, outcome.outputPath);
         return;
       }
 

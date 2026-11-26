@@ -517,23 +517,44 @@ export const encodeActiveSequence = (
  * This blocks the ExtendScript engine until the render finishes — Premiere
  * shows its own progress and the panel gets no progress events — but it needs
  * no second application, and the file is on disk when this returns.
+ *
+ * The return value differs by Premiere version (true, 0, "No Error"…), so it
+ * goes back raw with whether the file exists; the panel decides from both
+ * (src/js/lib/freeframe/render-result.ts).
  */
 export const renderInPremiere = (
   presetPath: string,
   outputPath: string,
   workArea: number
-): EncodeResult => {
+): EncodeResult & { raw?: string; exists?: boolean } => {
   const seq = activeSequence();
   if (!seq) return { ok: false, error: "no_sequence" };
   try {
-    const result = seq.exportAsMediaDirect(outputPath, presetPath, workArea);
-    // Premiere returns a status string; anything but "0" is a failure code.
-    if (result && String(result) !== "0" && String(result) !== "undefined") {
-      return { ok: false, error: String(result) };
-    }
-    return { ok: true, outputPath: outputPath };
+    const target = withPresetExtension(seq, presetPath, outputPath);
+    const result = seq.exportAsMediaDirect(target, presetPath, workArea);
+    return {
+      ok: true,
+      raw: String(result),
+      outputPath: target,
+      exists: new File(target).exists,
+    };
   } catch (e) {
     return { ok: false, error: String(e) };
+  }
+};
+
+/** Swaps the path's extension for the one the preset writes (".mov", ".mxf"…). */
+const withPresetExtension = (seq: Sequence, presetPath: string, outputPath: string): string => {
+  try {
+    let ext = String(seq.getExportFileExtension(presetPath) || "");
+    if (ext.charAt(0) === ".") ext = ext.substring(1);
+    if (!ext || ext === "undefined") return outputPath;
+    const dot = outputPath.lastIndexOf(".");
+    const slash = Math.max(outputPath.lastIndexOf("/"), outputPath.lastIndexOf("\\"));
+    const base = dot > slash ? outputPath.substring(0, dot) : outputPath;
+    return base + "." + ext;
+  } catch (e) {
+    return outputPath;
   }
 };
 
